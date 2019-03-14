@@ -53,6 +53,7 @@ class DSWeather(callbacks.Plugin):
         self.__parent = super(DSWeather, self)
         self.__parent.__init__(irc)
         locationdb_file = conf.supybot.directories.data.dirize("DSWeather-locations.json")
+        self.log.debug("location db:  " + locationdb_file)
         if os.path.exists(locationdb_file):
             with open(locationdb_file) as f:
                 self.locationdb = json.load(f)

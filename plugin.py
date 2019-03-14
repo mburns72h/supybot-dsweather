@@ -73,7 +73,7 @@ class DSWeather(callbacks.Plugin):
         self._sync_locationdb()
         super(DSWeather).die()
 
-    def _get_location(location):
+    def _get_location(self, location):
         self.log.debug("checking location " + str(location))
         lat = "42.55433425"
         lon = "-71.4438279891107"

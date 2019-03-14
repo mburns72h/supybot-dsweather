@@ -69,7 +69,6 @@ class DSWeather(callbacks.Plugin):
 
     def die(self):
         world.flushers.remove(self._sync_locationdb)
-        self.db.flush()
         self._sync_locationdb()
         super().die()
 

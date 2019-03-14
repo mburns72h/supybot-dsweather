@@ -36,6 +36,7 @@ import supybot.callbacks as callbacks
 from supybot import utils, plugins, ircutils, callbacks, world, conf, log
 import os
 import requests
+import json
 try:
     from supybot.i18n import PluginInternationalization
     _ = PluginInternationalization('DSWeather')

@@ -61,27 +61,26 @@ class DSWeather(callbacks.Plugin):
     def _sync_locationdb(self):
         locationdb_filename = conf.supybot.directories.data.dirize("DSWeather-locations.json")
         with open(locationdb_filename, 'w') as f:
-            json.dump(self.geocode_db, f)
+            json.dump(self.locationdb, f)
 
     def die(self):
-        world.flushers.remove(self.db.flush)
-        world.flushers.remove(self._flush_geocode_db)
+        world.flushers.remove(self._sync_locationdb)
         self.db.flush()
-        self._flush_geocode_db()
+        self._sync_locationdb()
         super().die()
 
     def _get_location(location):
-        self.log.debug("checking location " + str(location)
-        lat="42.55433425"
-        lon="-71.4438279891107"
-        self.log.debug("Found location %s,%s" % (lat, lon)
+        self.log.debug("checking location " + str(location))
+        lat = "42.55433425"
+        lon = "-71.4438279891107"
+        self.log.debug("Found location %s,%s" % (lat, lon))
         return (lat, lon)
 
 
     def _get_weather(self, latitude, longitude, extra=None):
         return ("46.44", "partly cloudy")
         baseurl = "https://api.darksky.net/forecast/"
-        r = requests.get(baseurl + self.registryValue('key') + "/%s,%s" % (str(lat), str(lon))
+        r = requests.get(baseurl + self.registryValue('key') + "/%s,%s" % (str(lat), str(lon)))
         return (r.json()['currently']['temperature'], r.json()['currently']['summary'])
 
 
@@ -90,7 +89,7 @@ class DSWeather(callbacks.Plugin):
         """get the weather for a location"""
         (lat,lon) = self._get_location(things)
         (temp,status) = self._get_weather(lat, lon)
-        self.irc.reply("The weather in \"%s\" currently %s and %s" % (things, temp, status)
+        self.irc.reply("The weather in \"%s\" currently %s and %s" % (things, temp, status))
     weather = wrap(weather, ['channel', any('something')])
 
 

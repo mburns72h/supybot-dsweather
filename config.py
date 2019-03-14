@@ -53,7 +53,8 @@ DSWeather = conf.registerPlugin('DSWeather')
 # conf.registerGlobalValue(DSWeather, 'someConfigVariableName',
 #     registry.Boolean(False, _("""Help for someConfigVariableName.""")))
 conf.registerGlobalValue(DSWeather, 'apikey',
-                         registry.string("", _("""API Key for DarkSky""")))
+                         registry.String("", """API Key for DarkSky""",
+                         private=True))
 
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

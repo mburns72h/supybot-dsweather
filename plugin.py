@@ -71,7 +71,6 @@ class DSWeather(callbacks.Plugin):
     def die(self):
         world.flushers.remove(self._sync_locationdb)
         self._sync_locationdb()
-        super(DSWeather).die()
 
     def _get_location(self, location):
         self.log.debug("checking location " + str(location))
@@ -87,13 +86,12 @@ class DSWeather(callbacks.Plugin):
         r = requests.get(baseurl + self.registryValue('key') + "/%s,%s" % (str(lat), str(lon)))
         return (r.json()['currently']['temperature'], r.json()['currently']['summary'])
 
-
-
     def weather(self, irc, msg, args, things):
         """get the weather for a location"""
-        (lat,lon) = self._get_location(things)
+        location = str(things)
+        (lat,lon) = self._get_location(location)
         (temp,status) = self._get_weather(lat, lon)
-        irc.reply("The weather in \"%s\" currently %s and %s" % (things, temp, status))
+        irc.reply("The weather in \"%s\" currently %s and %s" % (location, temp, status))
     weather = wrap(weather, [any('something')])
 
 

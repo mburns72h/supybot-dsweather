@@ -71,7 +71,7 @@ class DSWeather(callbacks.Plugin):
     def die(self):
         world.flushers.remove(self._sync_locationdb)
         self._sync_locationdb()
-        super().die()
+        super(DSWeather).die()
 
     def _get_location(location):
         self.log.debug("checking location " + str(location))
@@ -89,7 +89,7 @@ class DSWeather(callbacks.Plugin):
 
 
 
-    def weather(self, irc, msg, args, channel, things):
+    def weather(self, irc, msg, args, things):
         """get the weather for a location"""
         (lat,lon) = self._get_location(things)
         (temp,status) = self._get_weather(lat, lon)

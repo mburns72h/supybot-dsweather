@@ -91,9 +91,8 @@ class DSWeather(callbacks.Plugin):
         return data
 
     def _get_weather(self, latitude, longitude, extra=None):
-        return ("46.44", "partly cloudy")
         baseurl = "https://api.darksky.net/forecast/"
-        r = requests.get(baseurl + self.registryValue('key') + "/%s,%s" % (str(lat), str(lon)))
+        r = requests.get(baseurl + self.registryValue('apikey') + "/%s,%s" % (str(latitude), str(longitude)))
         return (r.json()['currently']['temperature'], r.json()['currently']['summary'])
 
     def weather(self, irc, msg, args, things):

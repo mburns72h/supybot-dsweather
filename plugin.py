@@ -74,11 +74,21 @@ class DSWeather(callbacks.Plugin):
 
     def _get_location(self, location):
         self.log.debug("checking location " + str(location))
-        lat = "42.55433425"
-        lon = "-71.4438279891107"
-        self.log.debug("Found location %s,%s" % (lat, lon))
-        return (lat, lon)
+        loc = location.lower()
+        if loc in self.locationdb:
+            self.log.debug("Using cached details for %s" % loc)
+            return self.locationdb[loc]
 
+        url='https://nominatim.openstreetmap.org/search/%s?format=jsonv2' % utils.web.urlquote(location)
+        self.log.debug("trying url %s" % url)
+        r = requests.get(url)
+        if len(r.json()) == 0:
+            self.locationdb[loc] = None
+            return None
+        data=r.json()[0]
+        self.log.debug("Found location: %s" % (data['display_name']))
+        self.locationdb[loc] = data
+        return data
 
     def _get_weather(self, latitude, longitude, extra=None):
         return ("46.44", "partly cloudy")
@@ -89,9 +99,9 @@ class DSWeather(callbacks.Plugin):
     def weather(self, irc, msg, args, things):
         """get the weather for a location"""
         location = str(things)
-        (lat,lon) = self._get_location(location)
-        (temp,status) = self._get_weather(lat, lon)
-        irc.reply("The weather in \"%s\" currently %s and %s" % (location, temp, status))
+        loc_data = self._get_location(location)
+        (temp,status) = self._get_weather(loc_data['lat'], loc_data['lon'])
+        irc.reply("The weather in \"%s\" currently %s and %s" % (loc_data['display_name'], temp, status))
     weather = wrap(weather, [any('something')])
 
 

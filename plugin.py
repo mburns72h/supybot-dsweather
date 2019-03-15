@@ -100,7 +100,10 @@ class DSWeather(callbacks.Plugin):
         location = ' '.join(things)
         loc_data = self._get_location(location)
         (temp,status) = self._get_weather(loc_data['lat'], loc_data['lon'])
-        irc.reply("The weather in \"%s\" currently %s and %s" % (loc_data['display_name'], temp, status))
+        tempC = round((float(temp) -32) * 5 / 9, 1)
+        tempF = round(float(temp), 1)
+        irc.reply("The weather in \"%s\" currently %iF/%iC and %s" %
+        (loc_data['display_name'], tempF, tempC, status))
     weather = wrap(weather, [any('something')])
 
 

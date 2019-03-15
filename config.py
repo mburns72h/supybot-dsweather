@@ -55,6 +55,10 @@ DSWeather = conf.registerPlugin('DSWeather')
 conf.registerGlobalValue(DSWeather, 'apikey',
                          registry.String("", """API Key for DarkSky""",
                          private=True))
+conf.registerChannelValue(DSWeather, 'alerts',
+                         registry.Boolean(True, """Show weather alerts if
+                         found.""",
+                         private=False))
 
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

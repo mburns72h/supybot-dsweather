@@ -30,13 +30,17 @@
 
 import supybot.utils as utils
 from supybot.commands import *
+from supybot.commands import wrap
 import supybot.plugins as plugins
-import supybot.ircutils as ircutils
+# import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
-from supybot import utils, plugins, ircutils, callbacks, world, conf, log
+import supybot.conf as conf
+import supybot.world as world
+# from supybot import utils, plugins, ircutils, callbacks, world, conf, log
 import os
 import requests
 import json
+import time
 try:
     from supybot.i18n import PluginInternationalization
     _ = PluginInternationalization('DSWeather')
@@ -79,21 +83,25 @@ class DSWeather(callbacks.Plugin):
             self.log.debug("Using cached details for %s" % loc)
             return self.locationdb[loc]
 
-        url='https://nominatim.openstreetmap.org/search/%s?format=jsonv2' % utils.web.urlquote(location)
+        url = 'https://nominatim.openstreetmap.org/search/%s?format=jsonv2' % utils.web.urlquote(location)
         self.log.debug("trying url %s" % url)
         r = requests.get(url)
         if len(r.json()) == 0:
             self.locationdb[loc] = None
             return None
-        data=r.json()[0]
+        data = r.json()[0]
         self.log.debug("Found location: %s" % (data['display_name']))
         self.locationdb[loc] = data
         return data
 
     def _get_weather(self, latitude, longitude, extra=None):
         baseurl = "https://api.darksky.net/forecast/"
-        r = requests.get(baseurl + self.registryValue('apikey') + "/%s,%s" % (str(latitude), str(longitude)))
-        return (r.json()['currently']['temperature'], r.json()['currently']['summary'])
+        opts = {'exclude': 'minutely,hourly,daily'}
+        alerts = []
+        r = requests.get(baseurl + self.registryValue('apikey') + "/%s,%s" % (str(latitude), str(longitude)), params=opts)
+        if 'alerts' in r.json():
+            alerts = r.json()['alerts']
+        return (r.json()['currently']['temperature'], r.json()['currently']['summary'], alerts)
 
     def weather(self, irc, msg, args, things):
         """get the weather for a location"""
@@ -102,10 +110,19 @@ class DSWeather(callbacks.Plugin):
         if loc_data is None:
             irc.reply("Sorry, \"%s\" is not found.  Please try your search on https://nominatim.openstreetmap.org/" % location)
         else:
-            (temp,status) = self._get_weather(loc_data['lat'], loc_data['lon'])
-            tempC = round((float(temp) -32) * 5 / 9, 1)
+            (temp, status, alerts) = self._get_weather(loc_data['lat'], loc_data['lon'])
+            tempC = round((float(temp) - 32) * 5 / 9, 1)
             tempF = round(float(temp), 1)
-            irc.reply("The weather in \"%s\" currently %sF/%sC and %s" % (loc_data['display_name'], tempF, tempC, status))
+            irc.reply("The weather in \"%s\" currently %sF/%sC and %s" % (loc_data['display_name'], tempF, tempC, status), sendImmediately=True)
+            # Handle alerts
+            self.log.debug("show alerts:  %s" % (str(self.registryValue('alerts'))))
+            if self.registryValue('alerts'):
+                for alert in alerts:
+                    msg = "Alert:  %s [%s] for this location until %s:  %s" % (
+                          alert['title'], alert['severity'],
+                          time.ctime(alert['expires']),
+                          alert['description'])
+                    irc.reply(msg, sendImmediately=True)
     weather = wrap(weather, [any('something')])
 
 

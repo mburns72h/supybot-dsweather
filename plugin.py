@@ -99,10 +99,13 @@ class DSWeather(callbacks.Plugin):
         """get the weather for a location"""
         location = ' '.join(things)
         loc_data = self._get_location(location)
-        (temp,status) = self._get_weather(loc_data['lat'], loc_data['lon'])
-        tempC = round((float(temp) -32) * 5 / 9, 1)
-        tempF = round(float(temp), 1)
-        irc.reply("The weather in \"%s\" currently %sF/%sC and %s" % (loc_data['display_name'], tempF, tempC, status))
+        if loc_data is None:
+            irc.reply("Sorry, \"%s\" is not found.  Please try your search on https://nominatim.openstreetmap.org/" % location)
+        else:
+            (temp,status) = self._get_weather(loc_data['lat'], loc_data['lon'])
+            tempC = round((float(temp) -32) * 5 / 9, 1)
+            tempF = round(float(temp), 1)
+            irc.reply("The weather in \"%s\" currently %sF/%sC and %s" % (loc_data['display_name'], tempF, tempC, status))
     weather = wrap(weather, [any('something')])
 
 

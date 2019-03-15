@@ -98,7 +98,7 @@ class DSWeather(callbacks.Plugin):
 
     def weather(self, irc, msg, args, things):
         """get the weather for a location"""
-        location = str(things)
+        location = ' '.join(things)
         loc_data = self._get_location(location)
         (temp,status) = self._get_weather(loc_data['lat'], loc_data['lon'])
         irc.reply("The weather in \"%s\" currently %s and %s" % (loc_data['display_name'], temp, status))

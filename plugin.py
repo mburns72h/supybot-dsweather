@@ -115,12 +115,14 @@ class DSWeather(callbacks.Plugin):
             tempF = round(float(temp), 1)
             irc.reply("The weather in \"%s\" currently %sF/%sC and %s" % (loc_data['display_name'], tempF, tempC, status), sendImmediately=True)
             # Handle alerts
-            for alert in alerts:
-                msg = "Alert:  %s [%s] for this location until %s:  %s" % (
-                      alert['title'], alert['severity'],
-                      time.ctime(alert['expires']),
-                      alert['description'])
-                irc.reply(msg, sendImmediately=True)
+            self.log.debug("show alerts:  %s" % (str(self.registryValue('alerts'))))
+            if self.registryValue('alerts'):
+                for alert in alerts:
+                    msg = "Alert:  %s [%s] for this location until %s:  %s" % (
+                          alert['title'], alert['severity'],
+                          time.ctime(alert['expires']),
+                          alert['description'])
+                    irc.reply(msg, sendImmediately=True)
     weather = wrap(weather, [any('something')])
 
 
